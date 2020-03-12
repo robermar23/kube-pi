@@ -41,7 +41,7 @@ flash -u static.yml https://github.com/hypriot/image-builder-rpi/releases/downlo
 
 This will flash the image from the url above.  You may need to update the hyperiot image version.  It will then apply the config in static.yml
 
-## Phase 3: Kubernetes Core Install
+## Phase 4: Kubernetes Core Install
 <i>Note: install requires root privledges</i>
 
 ### -- On Each Raspberry Pi (master/node) --
@@ -89,7 +89,7 @@ If all went well, all nodes will appear with a status of Ready.  Your master nod
 
 <i>note the version of kubernetes.  If can be helpful to know the version when troubleshooting</i>
 
-## Phase 4: Kubernetes Networking
+## Phase 5: Kubernetes Networking
 Now comes some fun.  
 
 I ended up using Flannel as my networking provider for kubernetes. It looked like the only one that supported the arm chipset.  Turns out, what I read was old and there are other providers that support arm.  
@@ -136,10 +136,33 @@ kubeadm token create
 You may see some validation errors, but they can be ignored for now. With the new token, you can run this on the new node:
 ```bash
 kubeadm join [master ip address]:6443 --token [new token]--discovery-token-unsafe-skip-ca-verification
+```
 
-## Phase 4: Kubernetes Ingress
-coming soon
+## Phase 6: Kubernetes Ingress
+Decided to go with traefik: https://docs.traefik.io/user-guides/crd-acme/
 
-## Phase 5: Kubernetes Local/Remote Volume Provisioning
+treaefik crd's:
+```bash
+kubectl apply -f phase6-ingress/traefik-crd.yaml 
+```
 
-## Phase 6: Using kube-pi
+deploy example services
+```bash
+kubectl apply -f phase6-ingress/services.yaml 
+```
+
+deploy example apps
+```bash
+kubectl apply -f phase6-ingress/deployment.yaml 
+```
+
+```bash
+kubectl port-forward --address 0.0.0.0 service/traefik 8000:8000 8080:8080 443:4443 -n default
+```
+
+## Phase 7: Kubernetes Dashboard
+https://github.com/kubernetes/dashboard
+
+## Phase 8: Kubernetes Local/Remote Volume Provisioning
+
+## Phase 9: Using kube-pi
