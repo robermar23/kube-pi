@@ -115,7 +115,27 @@ kubectl get pods --namespace=kube-system
 ```
 
 #### Troubleshooting Flannel
-You'll probably end up here.  coming soon.
+I found while troubleshooting Flannel, that the process of restarting the pods in the flannel daemonset itself caused issues.  The network interface it creates on the host is not removed and, it seemingly is unable to get around that at startup and fails.  You have to manually remove the interface on each node:
+```bash
+sudo ip link delete flannel.1
+```
+
+If you need to restart the flannel daemonset for whatever reason (maybe config change), you can run:
+```bash
+kubectl delete pod -l app=flannel --namespace=kube-system
+```
+
+#### Troubleshooting cluster join
+The join token provided at init is only good for 24 hours, so if you need to join a node after that period of time, you can ask for a new token.
+
+On the master:
+```bash
+kubeadm token create
+```
+
+You may see some validation errors, but they can be ignored for now. With the new token, you can run this on the new node:
+```bash
+kubeadm join [master ip address]:6443 --token [new token]--discovery-token-unsafe-skip-ca-verification
 
 ## Phase 4: Kubernetes Ingress
 coming soon
