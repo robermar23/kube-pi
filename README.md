@@ -163,6 +163,61 @@ kubectl port-forward --address 0.0.0.0 service/traefik 8000:8000 8080:8080 443:4
 ## Phase 7: Kubernetes Dashboard
 https://github.com/kubernetes/dashboard
 
+to deploy:
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+```
+we first need to setup cheap local admin access with a serviceaccount.
+
+create a service account that has a cluster-admin role
+```bash
+kubectl apply -f phase7-dashboard/admin-sa.yml
+```
+
+describe the new local-admin service account to get its access token secret name:
+```bash
+kubectl describe sa local-admin
+```
+
+copy the first "Tokens" secret name you see and describe it like so:
+```bash
+kubectl describe secret ocal-admin-token-9whqp
+```
+
+copy down the token as you will use it later to login to the dashboard
+
+to access, without setting up any ingress:
+```bash
+kubectl proxy
+```
+
+go to the following url:
+```
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/.
+```
+
+this is also a good way to gain access to any service running in your cluster without setting up ingress.
+
 ## Phase 8: Kubernetes Local/Remote Volume Provisioning
 
 ## Phase 9: Using kube-pi
+
+## Helpful Kubernetes commands
+<b>Setup local kubectl to connect to remove cluster</b>
+```bash
+scp -r pirate@192.168.68.201:/home/pirate/.kube .
+cp -r .kube $HOME/
+```
+bam!
+
+<b> Switch namespace</b>
+```bash
+kubectl config set-context --current --namespace=[my-namespace]
+```
+
+<b>Auto complete for kubectl</b>
+```bash
+source <(kubectl completion bash) # setup autocomplete in bash into the current shell, bash-completion package should be installed first.
+echo "source <(kubectl completion bash)" >> ~/.bashrc # add autocomplete permanently to your bash shell.
+```
+
