@@ -75,7 +75,21 @@ sudo chown $(id -u):$(id -g) $HOME/admin.conf
 export KUBECONFIG=$HOME/admin.conf
 ```
 
-### -- On Each Node (rest of your pi's)
+## Phase 5: Kubernetes Networking
+weave.works's weave-net offers a cni plugin for kubernetes that also supports arm chipsets.
+
+Per their instructions:
+```bash
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+```
+
+If all goes well, this should show a weave pod succesfully running on each node in the kube-system namespace:
+```bash
+kubectl get pods --namespace=kube-system
+```
+
+## Phase 6 Join Nodes
+### -- On Each Node (except Master)
 Run the join command (use your actual join command from above):
 ```bash
 kubeadm join --token=bb14ca.e8bbbedf40c58788 192.168.0.34
@@ -88,42 +102,6 @@ kubectl get nodes
 If all went well, all nodes will appear with a status of Ready.  Your master node should display a Role of master.  
 
 <i>note the version of kubernetes.  If can be helpful to know the version when troubleshooting</i>
-
-## Phase 5: Kubernetes Networking
-Now comes some fun.  
-
-I ended up using Flannel as my networking provider for kubernetes. It looked like the only one that supported the arm chipset.  Turns out, what I read was old and there are other providers that support arm.  
-
-But, I found that out only after beating my head against the wall with Flannel and actually getting it to work.  So, as it stands now, I use Flannel and the instructions here "should" work.  It was difficult to get Flannel to work because the documentation and releases of Flannel have not kept pace with the releases and required changes for newer version of Kubernetes and Docker. The changes required to fixe my issues required pulling in information from multple sources.
-
-With all that being said, let's take the plunge:
-
-First, we have to modify the iptables ON EACH NODE/MASTER in the cluster to address an issue with new versions of docker:
-```bash
-sudo iptables -A FORWARD -i cni0 -j ACCEPT
-sudo iptables -A FORWARD -o cni0 -j ACCEPT
-```
-Next we need to deploy the flannel resources, which end up being a DaemonSet and RBAC to support it.
-```bash
-kubectl apply -f /phase4-core-install/kube-flannel.yml
-```
-The kube-flanne.yml was originally sourced from https://rawgit.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml.  The latest release is v0.11.0 but it also does not work.  The kube-flannel.yml here does work with kubernetes 1.17.3
-
-If all goes well, this should show a flannel pod succesfully running on each node in the kube-system namespace:
-```bash
-kubectl get pods --namespace=kube-system
-```
-
-#### Troubleshooting Flannel
-I found while troubleshooting Flannel, that the process of restarting the pods in the flannel daemonset itself caused issues.  The network interface it creates on the host is not removed and, it seemingly is unable to get around that at startup and fails.  You have to manually remove the interface on each node:
-```bash
-sudo ip link delete flannel.1
-```
-
-If you need to restart the flannel daemonset for whatever reason (maybe config change), you can run:
-```bash
-kubectl delete pod -l app=flannel --namespace=kube-system
-```
 
 #### Troubleshooting cluster join
 The join token provided at init is only good for 24 hours, so if you need to join a node after that period of time, you can ask for a new token.
@@ -138,12 +116,12 @@ You may see some validation errors, but they can be ignored for now. With the ne
 kubeadm join [master ip address]:6443 --token [new token]--discovery-token-unsafe-skip-ca-verification
 ```
 
-## Phase 6: Kubernetes Ingress
+## Phase 7: Kubernetes Ingress
 Decided to go with traefik: https://docs.traefik.io/user-guides/crd-acme/
 
 treaefik crd's:
 ```bash
-kubectl apply -f phase6-ingress/traefik-crd.yaml 
+kubectl apply -f phase6-ingress/controller/traefik-crd.yaml 
 ```
 
 deploy example services
@@ -160,7 +138,7 @@ kubectl apply -f phase6-ingress/deployment.yaml
 kubectl port-forward --address 0.0.0.0 service/traefik 8000:8000 8080:8080 443:4443 -n default
 ```
 
-## Phase 7: Kubernetes Dashboard
+## Phase 8: Kubernetes Dashboard
 https://github.com/kubernetes/dashboard
 
 to deploy:
@@ -198,7 +176,7 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 
 this is also a good way to gain access to any service running in your cluster without setting up ingress.
 
-## Phase 8 Nagios
+## Phase 9 Nagios
 I wanted to setup a monitoring solution that was light weight and free.  Nagios has been around forever and, as it turned out, you can get the agents and server to work on a raspberry pi.
 
 I am work working on contaierizing nagios core server.
@@ -226,9 +204,9 @@ chmod +x install_nrpe_source.sh
 
 At this point its about setting up your nagios core serer to monitor these nodes through check_nrpe.
 
-## Phase 8: Kubernetes Local/Remote Volume Provisioning
+## Phase 10: Kubernetes Local/Remote Volume Provisioning
 
-## Phase 9: Using kube-pi
+## Phase 11: Using kube-pi
 
 ## Helpful Kubernetes commands
 <b>Setup local kubectl to connect to remove cluster</b>
