@@ -227,3 +227,17 @@ source <(kubectl completion bash) # setup autocomplete in bash into the current 
 echo "source <(kubectl completion bash)" >> ~/.bashrc # add autocomplete permanently to your bash shell.
 ```
 
+<b>Docker tech preview builderx</b>
+```bash
+docker buildx ls
+docker buildx create --name mybuilder
+docker buildx use mybuilder
+docker buildx inspect --bootstrap
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t robermar2/net-tool:latest --push .
+```
+
+## Troubleshooting networking
+
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#ensure-iptables-tooling-does-not-use-the-nftables-backend
+
+iptables 1.8  wow
