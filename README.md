@@ -45,6 +45,19 @@ This will flash the image from the url above.  You may need to update the hyperi
 <i>Note: install requires root privledges</i>
 
 ### -- On Each Raspberry Pi (master/node) --
+
+Ensure legacy binaries are installed for iptables
+```bash
+sudo apt-get install -y iptables arptables ebtables
+```
+switch to legacy version of iptables (required for kubernetes)
+```bash
+sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+sudo update-alternatives --set arptables /usr/sbin/arptables-legacy
+sudo update-alternatives --set ebtables /usr/sbin/ebtables-legacy
+```
+
 Trust the kubernetes APT key and add the official APT Kubernetes repository:
 ```bash
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -76,7 +89,7 @@ export KUBECONFIG=$HOME/admin.conf
 ```
 
 ## Phase 5: Kubernetes Networking
-weave.works's weave-net offers a cni plugin for kubernetes that also supports arm chipsets.
+weave.works's weave-net offers a cni plugin for kubernetes that also supports arm chipsets and, at this time, works out of the box.
 
 Per their instructions:
 ```bash
@@ -137,6 +150,33 @@ kubectl apply -f phase6-ingress/deployment.yaml
 ```bash
 kubectl port-forward --address 0.0.0.0 service/traefik 8000:8000 8080:8080 443:4443 -n default
 ```
+
+This has some good steps for testing out your cluster:
+https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/
+
+### Access cluster resources from outside the cluster
+
+#### kubectl proxy
+```bash
+kubetctl proxy [port]
+```
+all traffic over the port is sent to the cluster (specifically the main api)
+
+#### port forward
+```bash
+kubectl port-forward [service or pod] [port]:[target-port]
+```
+
+#### Build proxy url's manually:
+```bash
+https://192.168.68.201:6443/api/v1/namespaces/default/services/http:whoami:web/proxy
+```
+
+#### Use NodePort loadbalancers
+This is the avenue you'll most likely use for labs/personal/development use.  This type of service will create a LoadBalancer that opens a defined port on each NODE in your cluster.  You can view the port opened by describing the service.  This is ideal as it allows you to setup something like HAProxy in front of your cluster nodes, defining proxy paths to the port on each node.
+
+Example NodePort type is at: /phase7-ingress/example-http/load-balancer.yaml
+
 
 ## Phase 8: Kubernetes Dashboard
 https://github.com/kubernetes/dashboard
@@ -227,17 +267,20 @@ source <(kubectl completion bash) # setup autocomplete in bash into the current 
 echo "source <(kubectl completion bash)" >> ~/.bashrc # add autocomplete permanently to your bash shell.
 ```
 
-<b>Docker tech preview builderx</b>
+<b>Attach to a container that support tty.  The net-tool pod is a swiss army knife of network troubleshooting tools in a containerized environment.</b>
+
 ```bash
-docker buildx ls
-docker buildx create --name mybuilder
-docker buildx use mybuilder
-docker buildx inspect --bootstrap
-docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t robermar2/net-tool:latest --push .
+kubectl apply phase5-networking/net-tool.yml
 ```
 
-## Troubleshooting networking
+This will run a tty capable pod that will wait for you
+```bash
+kubectl attach -it net-tool -c net-tool
+```
+That will attach to the net-tool container in the net-tool pod
 
-https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#ensure-iptables-tooling-does-not-use-the-nftables-backend
+List listening ports on a given host:
+```bash
+sudo netstat -tulpn | grep LISTEN
+```
 
-iptables 1.8  wow

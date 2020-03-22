@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: net-tool
+  namespace: default
+  labels:
+    access: "true"
+spec:
+  #hostNetwork: true
+  containers:
+  - name: net-tool
+    image: robermar2/net-tool:latest
+    command:
+      - "/bin/bash"
+    stdin: true
+    tty: true
+    imagePullPolicy: IfNotPresent
+  restartPolicy: Always

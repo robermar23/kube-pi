@@ -25,8 +25,9 @@ metadata:
 
 spec:
   ports:
-    - protocol: TCP
-      name: web
+    - name: web
+      protocol: TCP
       port: 80
+      targetPort: 80
   selector:
     app: whoami

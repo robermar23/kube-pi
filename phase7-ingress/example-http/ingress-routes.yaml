@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: Host(`test.k8local.io`) && PathPrefix(`/notls`)
+  - match: Host(`test.k8local.io`)
     kind: Rule
     services:
     - name: whoami
