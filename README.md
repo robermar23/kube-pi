@@ -177,6 +177,42 @@ This is the avenue you'll most likely use for labs/personal/development use.  Th
 
 Example NodePort type is at: /phase7-ingress/example-http/load-balancer.yaml
 
+## Phase 9: HAProxy External Ingress
+
+From entry-point, either local client or dedicated linux:
+
+Install HAProxy
+```bash
+sudo apt-get install haproxy
+```
+
+HAProxy config is at:
+```bash
+/etc/haproxy/haproxy.cfg
+```
+
+If you setup a Service of type NodePort, and Kubernetes started listening on port 31090, you can setup a simple load balancer to proxy traffic to that service using the following in your haproxy.cfg:
+
+Note: 
+```
+frontend k8s-whoami-proxy
+        bind    [local client ip]:[port to expose, usually 80 or 443]
+        mode    tcp
+        option  tcplog
+        default_backend k8s-whoami
+
+backend k8s-whoami
+        mode    tcp
+        option  tcp-check
+        balance roundrobin
+        default-server  inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
+        server  k8s-node-01 [node1-ip]:31090 check
+        server  k8s-node-02 [node2-ip]:31090 check
+        server  k8s-node-03 [node3-ip]:31090 check
+        server  k8s-node-04 [node4-ip]:31090 check
+```
+replace the [node1-ip] and so on with actual ip's of node's in your kubernetes cluster
+
 
 ## Phase 8: Kubernetes Dashboard
 https://github.com/kubernetes/dashboard
@@ -189,7 +225,7 @@ we first need to setup cheap local admin access with a serviceaccount.
 
 create a service account that has a cluster-admin role
 ```bash
-kubectl apply -f phase7-dashboard/admin-sa.yml
+kubectl apply -f phase8-dashboard/admin-sa.yaml
 ```
 
 describe the new local-admin service account to get its access token secret name:
@@ -199,7 +235,7 @@ kubectl describe sa local-admin
 
 copy the first "Tokens" secret name you see and describe it like so:
 ```bash
-kubectl describe secret ocal-admin-token-9whqp
+kubectl describe secret local-admin-token-9whqp
 ```
 
 copy down the token as you will use it later to login to the dashboard
@@ -242,7 +278,7 @@ chmod +x install_nrpe_source.sh
 ./install_nrpe_Source.sh
 ```
 
-At this point its about setting up your nagios core serer to monitor these nodes through check_nrpe.
+At this point its about setting up your nagios core server to monitor these nodes through check_nrpe.
 
 ## Phase 10: Kubernetes Local/Remote Volume Provisioning
 
@@ -278,6 +314,11 @@ This will run a tty capable pod that will wait for you
 kubectl attach -it net-tool -c net-tool
 ```
 That will attach to the net-tool container in the net-tool pod
+
+Export kubernetes object as yaml
+```bash
+kubectl get service kubernetes-dashboard -n kubernetes-dashboard --export -o yaml > phase8-dashboard/dashboard-service.yaml
+```
 
 List listening ports on a given host:
 ```bash
