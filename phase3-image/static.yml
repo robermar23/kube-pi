@@ -3,10 +3,16 @@
 #
 
 # Set your hostname here, the manage_etc_hosts will update the hosts file entries as well
-hostname: k8s-node-02.local
+hostname: rpi-server-01.local
 manage_etc_hosts: true
 # don't write debian.org into apt mirrors
 apt_preserve_sources_list: true
+
+resize_rootfs: true
+growpart:
+  mode: auto
+  devices: ["/"]
+  ignore_growroot_disabled: false
 
 # You could modify this for your own user information
 users:
@@ -20,7 +26,11 @@ users:
     ssh_pwauth: true
     chpasswd: { expire: false }
 
-package_upgrade: false
+package_upgrade: true
+package_update: true
+package_reboot_if_required: true
+packages:
+  - ntp
 
 # Static IP address
 write_files:
@@ -31,8 +41,7 @@ write_files:
 
       # static IP configuration:
       interface eth0
-      static ip_address=192.168.68.203/24
-      # static ip6_address=fd51:42f8:caae:d92e::ff/64
+      static ip_address=192.168.68.200/24
       static routers=192.168.68.1
       static domain_name_servers=192.168.68.1 8.8.8.8
 
@@ -42,6 +51,7 @@ write_files:
 runcmd:
   # Pickup the hostname changes
   - 'systemctl restart avahi-daemon'
-
+  - 'systemctl restart docker'
+  - 'ifup eth0'
   # Activate WiFi interface
 #  - 'ifup wlan0'
