@@ -116,6 +116,20 @@ If all went well, all nodes will appear with a status of Ready.  Your master nod
 
 <i>note the version of kubernetes.  If can be helpful to know the version when troubleshooting</i>
 
+### Setup ssh to each node from a client (optiona)
+```bash
+ssh-keygen
+
+for host in 192.168.68.201 \
+    192.168.68.202 \
+    192.168.68.203 \
+    192.168.68.204 \
+    192.168.68.205 \
+    192.168.68.127; \
+    do ssh-copy-id -i ~/.ssh/id_rsa.pub $host; \
+    done
+```
+
 #### Troubleshooting cluster join
 The join token provided at init is only good for 24 hours, so if you need to join a node after that period of time, you can ask for a new token.
 
@@ -177,7 +191,7 @@ This is the avenue you'll most likely use for labs/personal/development use.  Th
 
 Example NodePort type is at: /phase7-ingress/example-http/load-balancer.yaml
 
-## Phase 9: HAProxy External Ingress
+## Phase 9: HAProxy with DNSMasq for External Ingress
 
 From entry-point, either local client or dedicated linux:
 
@@ -189,6 +203,11 @@ sudo apt-get install haproxy
 HAProxy config is at:
 ```bash
 /etc/haproxy/haproxy.cfg
+```
+
+View output for haproxy:
+```bash
+journalctl -u haproxy.service --since today
 ```
 
 If you setup a Service of type NodePort, and Kubernetes started listening on port 31090, you can setup a simple load balancer to proxy traffic to that service using the following in your haproxy.cfg:
@@ -213,6 +232,10 @@ backend k8s-whoami
 ```
 replace the [node1-ip] and so on with actual ip's of node's in your kubernetes cluster
 
+Install dnsmasq
+```bash
+apt-get install dnsmasq dnsutils
+```
 
 ## Phase 8: Kubernetes Dashboard
 https://github.com/kubernetes/dashboard
