@@ -331,7 +331,9 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 
 this is also a good way to gain access to any service running in your cluster without setting up ingress.
 
-## Phase 9 Nagios
+## Phase 9 Monitoring
+
+### Good old nagios (sort of)
 I wanted to setup a monitoring solution that was light weight and free.  Nagios has been around forever and, as it turned out, you can get the agents and server to work on a raspberry pi.
 
 I am work working on contaierizing nagios core server.
@@ -346,7 +348,7 @@ Copy over the script to each node and then run it. It installs nrpe and the core
 
 From where you have checked out this repo:
 ```bash
-rcp /phase8-nagios/install_nrpe_source.sh pirate@[node ip]:/tmp
+rcp phase8-nagios/install_nrpe_source.sh pirate@[node ip]:/tmp
 ```
 
 ssh into each node and run the script:
@@ -358,6 +360,11 @@ chmod +x install_nrpe_source.sh
 ```
 
 At this point its about setting up your nagios core server to monitor these nodes through check_nrpe.
+
+### Prometheus
+```
+helm install stable/prometheus-operator --name prometheus-operator -n monitoring
+```
 
 ## Phase 10: Kubernetes Local/Remote Volume Provisioning
 
