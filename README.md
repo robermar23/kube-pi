@@ -340,6 +340,10 @@ I am work working on contaierizing nagios core server.
 
 But, for now I have it running on bare metal on a separate pi.
 
+#### Nagios Core
+
+
+#### Nagios nrpe (for nodes you want to monitor)
 The scripts here are to get the nrpe agent + nagios plugins installed on each pi running as a kubernetes node.
 
 It involves compiling the source from scratch in order to install on a raspberry pi.  It can take some time.
