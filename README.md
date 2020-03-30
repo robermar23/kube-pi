@@ -116,6 +116,20 @@ If all went well, all nodes will appear with a status of Ready.  Your master nod
 
 <i>note the version of kubernetes.  If can be helpful to know the version when troubleshooting</i>
 
+### Setup ssh to each node from a client (optiona)
+```bash
+ssh-keygen
+
+for host in 192.168.68.201 \
+    192.168.68.202 \
+    192.168.68.203 \
+    192.168.68.204 \
+    192.168.68.205 \
+    192.168.68.127; \
+    do ssh-copy-id -i ~/.ssh/id_rsa.pub $host; \
+    done
+```
+
 #### Troubleshooting cluster join
 The join token provided at init is only good for 24 hours, so if you need to join a node after that period of time, you can ask for a new token.
 
@@ -177,7 +191,9 @@ This is the avenue you'll most likely use for labs/personal/development use.  Th
 
 Example NodePort type is at: /phase7-ingress/example-http/load-balancer.yaml
 
-## Phase 9: HAProxy External Ingress
+## Phase 9: Ingress
+
+### Phase 9a: HAProxy with DNSMasq for External Ingress
 
 From entry-point, either local client or dedicated linux:
 
@@ -189,6 +205,11 @@ sudo apt-get install haproxy
 HAProxy config is at:
 ```bash
 /etc/haproxy/haproxy.cfg
+```
+
+View output for haproxy:
+```bash
+journalctl -u haproxy.service --since today
 ```
 
 If you setup a Service of type NodePort, and Kubernetes started listening on port 31090, you can setup a simple load balancer to proxy traffic to that service using the following in your haproxy.cfg:
@@ -213,6 +234,64 @@ backend k8s-whoami
 ```
 replace the [node1-ip] and so on with actual ip's of node's in your kubernetes cluster
 
+Install dnsmasq
+```bash
+apt-get install dnsmasq dnsutils
+```
+
+### Phase 9b: 
+Install helm:
+
+
+Install MetalLB for load balancing:
+```bash
+helm install metallb stable/metallb --namespace kube-system \
+  --set configInline.address-pools[0].name=default \
+  --set configInline.address-pools[0].protocol=layer2 \
+  --set configInline.address-pools[0].addresses[0]=192.168.68.220-192.168.68.250
+```
+
+Install Nginx - Web Proxy for ingress
+```bash
+helm install nginx-ingress stable/nginx-ingress --namespace kube-system \
+  --set controller.image.repository=quay.io/kubernetes-ingress-controller/nginx-ingress-controller-arm \
+  --set controller.image.tag=0.25.1 \
+  --set controller.image.runAsUser=33 \
+  --set defaultBackend.enabled=false
+```
+Monitor deployment of nginx services:
+```
+kubectl --namespace kube-system get services -o wide -w nginx-ingress-controller
+```
+
+Note the EXTERNAL-IP provided.  Should be the first ip from the pool of ip's we set above. Notice nginx has exposed 443 and 80,so while right now we get a 404 error in return to curl or in browser, its working. 
+
+Install Cert-Manager
+
+Install CRDS's
+```
+kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.12/deploy/manifests/00-crds.yaml
+```
+
+Add jetstack helm repo
+```
+helm repo add jetstack https://charts.jetstack.io && helm repo update
+```
+
+Install cert-manager through helm
+```
+helm install cert-manager jetstack/cert-manager --namespace kube-system
+```
+
+Check status of cert-manager
+```
+kubectl get pods -n kube-system -l app.kubernetes.io/instance=cert-manager -o wide
+```
+
+Example ingress object using cert-manager:
+```
+./phase7-ingress/cert-manager/example-ingress.yml
+```
 
 ## Phase 8: Kubernetes Dashboard
 https://github.com/kubernetes/dashboard
@@ -252,13 +331,19 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 
 this is also a good way to gain access to any service running in your cluster without setting up ingress.
 
-## Phase 9 Nagios
+## Phase 9 Monitoring
+
+### Good old nagios (sort of)
 I wanted to setup a monitoring solution that was light weight and free.  Nagios has been around forever and, as it turned out, you can get the agents and server to work on a raspberry pi.
 
 I am work working on contaierizing nagios core server.
 
 But, for now I have it running on bare metal on a separate pi.
 
+#### Nagios Core
+
+
+#### Nagios nrpe (for nodes you want to monitor)
 The scripts here are to get the nrpe agent + nagios plugins installed on each pi running as a kubernetes node.
 
 It involves compiling the source from scratch in order to install on a raspberry pi.  It can take some time.
@@ -267,7 +352,7 @@ Copy over the script to each node and then run it. It installs nrpe and the core
 
 From where you have checked out this repo:
 ```bash
-rcp /phase8-nagios/install_nrpe_source.sh pirate@[node ip]:/tmp
+rcp phase8-nagios/install_nrpe_source.sh pirate@[node ip]:/tmp
 ```
 
 ssh into each node and run the script:
@@ -280,7 +365,84 @@ chmod +x install_nrpe_source.sh
 
 At this point its about setting up your nagios core server to monitor these nodes through check_nrpe.
 
+### Prometheus
+```
+helm install stable/prometheus-operator --name prometheus-operator -n monitoring
+```
+
 ## Phase 10: Kubernetes Local/Remote Volume Provisioning
+
+### Simple: Direct Attach Storage over USB
+One can simply plug an external drive of whatever size they like into a node in your kube-pi.  I am going to use my master.
+
+Find disk
+```
+fdisk -l
+```
+Prep disk
+```
+fdisk /dev/sda
+```
+fdisk: n, default, default, w
+
+```
+mkfs.ext4 /dev/sda
+```
+
+mount:
+```
+mount /dev/sda /mnt/ssd
+blkid
+```
+get uuid for:
+```
+sudo nano /etc/fstab
+UUID=x /mnt/ssd ext4 defaults 0 0
+```
+
+29c3398e-e3dd-4497-880f-929acd6c128e ex4
+
+Share our disk via NFS
+```
+sudo apt-get install nfs-kernel-server -y
+```
+
+share our disk:
+```
+sudo nano /etc/exports
+```
+append:
+```
+/mnt/ssd *(rw,no_root_squash,insecure,async,no_subtree_check,anonuid=1000,anongid=1000)
+```
+Expose nfs share using persistent volume:
+```
+kubectl apply -f phase10-persistent-storage/ex-nfs-pv.yml
+```
+
+#### On each worker node:
+```
+sudo apt-get install nfs-common -y
+```
+```
+sudo mkdir /mnt/ssd
+```
+```
+sudo chown -R pi:pi /mnt/ssd
+```
+mount at startup
+```
+sudo nano /etc/fstab
+```
+append:
+```
+192.168.68.201:/mnt/ssd /mnt/ssd nfs rw 0 0
+```
+
+mount now:
+```
+mount -t nfs 192.168.68.201:/mnt/ssd /mnt/ssd
+```
 
 ## Phase 11: Using kube-pi
 

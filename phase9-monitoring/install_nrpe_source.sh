@@ -6,7 +6,10 @@ wget --no-check-certificate -O nrpe.tar.gz https://github.com/NagiosEnterprises/
 tar xzf nrpe.tar.gz
 
 cd /tmp/nrpe-nrpe-3.2.1/
+#find a way to check for ssl-lib directory and pass correct one
 ./configure --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/arm-linux-gnueabihf --enable-command-args
+#./configure --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/aarch64-linux-gnu --enable-command-args
+
 make all
 
 make install-groups-users
@@ -34,7 +37,7 @@ iptables-save > /etc/iptables/rule
 
 # allow nagios server
 #allowed_hosts=127.0.0.1,192.168.68.150
-sed -i '/^allowed_hosts=/s/$/,192.168.68.150,192.168.68.149/' /usr/local/nagios/etc/nrpe.cfg
+sed -i '/^allowed_hosts=/s/$/,192.168.68.127/' /usr/local/nagios/etc/nrpe.cfg
 sed -i 's/^dont_blame_nrpe=.*/dont_blame_nrpe=1/g' /usr/local/nagios/etc/nrpe.cfg
 
 systemctl start nrpe.service

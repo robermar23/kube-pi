@@ -185,8 +185,8 @@ items:
               command:
                 - /home/weave/scope
               env: []
-              image: 'docker.io/weaveworks/scope:1.13.0'
-              imagePullPolicy: IfNotPresent
+              image: carlosedp/scope:latest-arm64
+              imagePullPolicy: Always
               ports:
                 - containerPort: 4040
                   protocol: TCP
@@ -269,8 +269,8 @@ items:
               command:
                 - /home/weave/scope
               env: []
-              image: 'docker.io/weaveworks/scope:1.13.0'
-              imagePullPolicy: IfNotPresent
+              image: carlosedp/scope:latest-arm64
+              imagePullPolicy: Always
               ports:
                 - containerPort: 4041
                   protocol: TCP
@@ -328,8 +328,8 @@ items:
               command:
                 - /home/weave/scope
               env: []
-              image: 'docker.io/weaveworks/scope:1.13.0'
-              imagePullPolicy: IfNotPresent
+              image: carlosedp/scope:latest-arm64
+              imagePullPolicy: Always
               resources:
                 requests:
                   cpu: 100m
