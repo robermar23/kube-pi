@@ -1,0 +1,17 @@
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: sysctl-psp
+  namespace: media
+spec:
+  privileged: true
+  allowedUnsafeSysctls:
+    - net.ipv6*
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
