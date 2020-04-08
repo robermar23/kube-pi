@@ -24,6 +24,10 @@ spec:
         backend:
           serviceName: "radarr"
           servicePort: 80
+      - path: "/ngax"
+        backend:
+          serviceName: "duplicati"
+          servicePort: 80
       - path: "/"
         backend:
           serviceName: "plex-kube-plex"

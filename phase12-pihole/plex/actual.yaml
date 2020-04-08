@@ -1,0 +1,168 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: plex-kube-plex
+  namespace: media
+  selfLink: /apis/apps/v1/namespaces/media/deployments/plex-kube-plex
+  uid: 88b23742-fcd6-4aad-acff-518d6da9a084
+  resourceVersion: '3747259'
+  generation: 7
+  creationTimestamp: '2020-04-01T01:08:48Z'
+  labels:
+    app: kube-plex
+    chart: kube-plex-0.2.7
+    heritage: Helm
+    release: plex
+  annotations:
+    deployment.kubernetes.io/revision: '7'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-plex
+      release: plex
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: kube-plex
+        release: plex
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: media-ssd
+        - name: config
+          persistentVolumeClaim:
+            claimName: media-ssd
+        - name: transcode
+          emptyDir: {}
+        - name: shared
+          emptyDir: {}
+      initContainers:
+        - name: kube-plex-install
+          image: 'quay.io/munnerz/kube-plex:latest'
+          command:
+            - cp
+            - /kube-plex
+            - /shared/kube-plex
+          resources: {}
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      containers:
+        - name: plex
+          image: 'linuxserver/plex:arm32v7-latest'
+          ports:
+            - name: pms
+              containerPort: 32400
+              protocol: TCP
+            - name: http
+              containerPort: 32400
+              protocol: TCP
+            - name: https
+              containerPort: 32443
+              protocol: TCP
+          env:
+            - name: TZ
+              value: America/New_York
+            - name: PLEX_CLAIM
+              value: claim-e1e7s4AdRmJ_fx6KAeCT
+            - name: PMS_INTERNAL_ADDRESS
+              value: 'http://plex-kube-plex:32400'
+            - name: PMS_IMAGE
+              value: 'linuxserver/plex:arm32v7-latest'
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: TRANSCODE_PVC
+              value: media-ssd
+            - name: DATA_PVC
+              value: media-ssd
+            - name: CONFIG_PVC
+              value: media-ssd
+          resources: {}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /config
+            - name: transcode
+              mountPath: /transcode
+            - name: shared
+              mountPath: /shared
+          livenessProbe:
+            httpGet:
+              path: /identity
+              port: 32400
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /identity
+              port: 32400
+              scheme: HTTP
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - bash
+                  - '-c'
+                  - >
+                    #!/bin/bash
+
+                    set -e
+
+                    rm -f '/usr/lib/plexmediaserver/Plex Transcoder'
+
+                    cp /shared/kube-plex '/usr/lib/plexmediaserver/Plex
+                    Transcoder'
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        beta.kubernetes.io/arch: arm
+      serviceAccountName: plex-kube-plex
+      serviceAccount: plex-kube-plex
+      securityContext: {}
+      hostname: plex-kube-plex
+      schedulerName: default-scheduler
+  strategy:
+    type: Recreate
+  revisionHistoryLimit: 3
+  progressDeadlineSeconds: 600
+status:
+  observedGeneration: 7
+  replicas: 1
+  updatedReplicas: 1
+  unavailableReplicas: 1
+  conditions:
+    - type: Available
+      status: 'False'
+      lastUpdateTime: '2020-04-01T01:08:49Z'
+      lastTransitionTime: '2020-04-01T01:08:49Z'
+      reason: MinimumReplicasUnavailable
+      message: Deployment does not have minimum availability.
+    - type: Progressing
+      status: 'False'
+      lastUpdateTime: '2020-04-02T00:28:00Z'
+      lastTransitionTime: '2020-04-02T00:28:00Z'
+      reason: ProgressDeadlineExceeded
+      message: ReplicaSet "plex-kube-plex-77cff4bcd9" has timed out progressing.

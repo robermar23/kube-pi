@@ -1,0 +1,35 @@
+replicaCount: 1
+
+image:
+  repository: "robermar2/radarr"
+  tag: "armv7" # ARM image
+  pullPolicy: Always
+
+env:
+  - name: PUID
+    value: "1000"
+  - name: PGID
+    value: "1000"
+
+service:
+  type: ClusterIP
+  port: 80
+
+volumes:
+  - name: "media-ssd"
+    persistentVolumeClaim:
+      claimName:  "media-ssd" # PersistentVolumeClaim created earlier
+  - name: "media-ssd-plex-data"
+    persistentVolumeClaim:
+      claimName:  "media-ssd-plex-data" # PersistentVolumeClaim created earlier
+
+volumeMounts:
+  - name: "media-ssd"
+    mountPath: "/config"
+    subPath: "configs/radarr" # Path /mnt/ssd/media/configs/radarr where radarr writes the configuration
+  - name: "media-ssd"
+    mountPath: "/downloads/transmission"
+    subPath: "downloads/transmission" # Path /mnt/ssd/media/downloads/transmission where radarr picks up downloaded movies
+  - name: media-ssd-plex-data
+    mountPath: "/data/movies"
+    #subPath: "movies" # Path /mnt/ssd/media/library/movies where radarr moves and renames the movies

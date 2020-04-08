@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: "media-ssd"
+  name: "duplicati-app-config-data"
   labels:
     type: "local"
 spec:
   storageClassName: "manual"
   capacity:
-    storage: "1000Gi"
+    storage: "10Gi"
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: "/mnt/ssd/media"
+    path: "/mnt/ssd/duplicati-config"

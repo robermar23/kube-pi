@@ -2,11 +2,11 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   namespace: "media"
-  name: "media-ssd"
+  name: "duplicati-backup-dest"
 spec:
   storageClassName: "manual"
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: "1000Gi"
+      storage: "200Gi"
