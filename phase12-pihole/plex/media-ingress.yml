@@ -28,6 +28,14 @@ spec:
         backend:
           serviceName: "duplicati"
           servicePort: 80
+      - path: "/organizr"
+        backend:
+          serviceName: "organizr"
+          servicePort: 80
+      - path: "/ombi"
+        backend:
+          serviceName: "ombi"
+          servicePort: 80
       - path: "/"
         backend:
           serviceName: "plex-kube-plex"
