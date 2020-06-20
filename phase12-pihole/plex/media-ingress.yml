@@ -36,6 +36,10 @@ spec:
         backend:
           serviceName: "ombi"
           servicePort: 80
+      - path: "/lidarr"
+        backend:
+          serviceName: "lidarr"
+          servicePort: 80
       - path: "/"
         backend:
           serviceName: "plex-kube-plex"

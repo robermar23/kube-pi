@@ -1,8 +1,8 @@
 claimToken: "claim-n3wNCzG1FWUfHvCxPt8P" # Replace `<CLAIM_TOKEN>` by the token obtained previously.
 
 image:
-  repository: linuxserver/plex
-  tag: arm32v7-latest
+  repository: robermar2/pms
+  tag: latest
   pullPolicy: IfNotPresent
 
 kubePlex:
@@ -15,7 +15,7 @@ kubePlex:
 timezone: America/New_York
 
 service:
-  type: LoadBalancer # We will use a LoadBalancer to obtain a virtual IP that can be exposed to Plex Media via our router
+  type: NodePort # We will use a LoadBalancer to obtain a virtual IP that can be exposed to Plex Media via our router
   port: 32401 # Port to expose Plex
 
 rbac:
@@ -29,16 +29,16 @@ persistence:
     claimName: "media-ssd-plex-transcode"
     subPath: "transcode"
     enabled: true
-    storateClass: "manual"
+    storageClass: "manual"
   data:
     claimName: "media-ssd-plex-data"
     enabled: true
     subPath: "data"
-    storateClass: "manual"
+    storageClass: "manual"
   config:
     claimName: "media-ssd"
     #subPath: "configs/plex"
-    storateClass: "manual"
+    storageClass: "manual"
 
 resources: {}
 podAnnotations: {}

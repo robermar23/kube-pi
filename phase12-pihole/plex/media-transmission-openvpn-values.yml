@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: "haugene/transmission-openvpn"
   tag: "latest-armhf" # Suffixed by -armhf to pull the ARM image
-  pullPolicy: "IfNotPresent"
+  pullPolicy: "Always"
 
 env:
   - name: OPENVPN_PROVIDER

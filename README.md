@@ -486,4 +486,16 @@ List listening ports on a given host:
 ```bash
 sudo netstat -tulpn | grep LISTEN
 ```
+    
+clean up completed tranmission files:
+```bash
+find /mnt/ssd/media/downloads/transmission -type f -mtime +7 -exec rm -f {} \;
+```
 
+find arch: 01 for 32bit, 02 for 64bit:
+```
+od -An -t x1 -j 4 -N 1 file
+```
+
+plex media server log location
+/mnt/ssd/media/Library/Application Support/Plex Media Server/Logs

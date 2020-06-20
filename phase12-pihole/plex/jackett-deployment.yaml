@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "7"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"deployment.kubernetes.io/revision":"6"},"creationTimestamp":"2020-03-31T21:25:29Z","generation":6,"labels":{"app":"jackett","chart":"jackett-0.1.0","heritage":"Helm","release":"jackett"},"name":"jackett","namespace":"media","resourceVersion":"19984457","selfLink":"/apis/apps/v1/namespaces/media/deployments/jackett","uid":"565329e4-2051-4253-ac47-c796b7c5fb25"},"spec":{"progressDeadlineSeconds":600,"replicas":1,"revisionHistoryLimit":10,"selector":{"matchLabels":{"app":"jackett","release":"jackett"}},"strategy":{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"jackett","release":"jackett"}},"spec":{"containers":[{"env":[{"name":"VPN_ENABLED","value":"false"},{"name":"VPN_USERNAME","valueFrom":{"secretKeyRef":{"key":"username","name":"openvpn"}}},{"name":"VPN_PASSWORD","valueFrom":{"secretKeyRef":{"key":"password","name":"openvpn"}}},{"name":"LAN_NETWORK","value":"192.168.0.0/24"},{"name":"CREATE_TUN_DEVICE","value":"false"},{"name":"PUID","value":"1000"},{"name":"PGID","value":"1000"}],"image":"gjeanmart/jackettvpn:arm-latest","imagePullPolicy":"IfNotPresent","livenessProbe":{"failureThreshold":5,"httpGet":{"path":"/api/v2.0/indexers/rarbg/results/torznab/","port":9117,"scheme":"HTTP"},"initialDelaySeconds":60,"periodSeconds":30,"successThreshold":1,"timeoutSeconds":2},"name":"jackett","ports":[{"containerPort":9117,"name":"http","protocol":"TCP"}],"resources":{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"100m","memory":"128Mi"}},"securityContext":{"capabilities":{"add":["NET_ADMIN"]}},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","volumeMounts":[{"mountPath":"/config","name":"media-ssd","subPath":"configs/jackett"},{"mountPath":"/downloads","name":"media-ssd","subPath":"downloads/jackett"}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","schedulerName":"default-scheduler","securityContext":{},"terminationGracePeriodSeconds":30,"volumes":[{"name":"media-ssd","persistentVolumeClaim":{"claimName":"media-ssd"}},{"hostPath":{"path":"/dev/net/tun","type":""},"name":"dev-tun"}]}}},"status":{"availableReplicas":1,"conditions":[{"lastTransitionTime":"2020-05-22T00:33:56Z","lastUpdateTime":"2020-05-22T00:33:56Z","message":"Deployment has minimum availability.","reason":"MinimumReplicasAvailable","status":"True","type":"Available"},{"lastTransitionTime":"2020-03-31T21:25:30Z","lastUpdateTime":"2020-05-22T01:00:31Z","message":"ReplicaSet \"jackett-7cdf6b5764\" has successfully progressed.","reason":"NewReplicaSetAvailable","status":"True","type":"Progressing"}],"observedGeneration":6,"readyReplicas":1,"replicas":1,"updatedReplicas":1}}
+  creationTimestamp: "2020-03-31T21:25:29Z"
+  generation: 7
+  labels:
+    app: jackett
+    chart: jackett-0.1.0
+    heritage: Helm
+    release: jackett
+  name: jackett
+  namespace: media
+  resourceVersion: "19988037"
+  selfLink: /apis/apps/v1/namespaces/media/deployments/jackett
+  uid: 565329e4-2051-4253-ac47-c796b7c5fb25
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: jackett
+      release: jackett
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: jackett
+        release: jackett
+    spec:
+      containers:
+      - env:
+        - name: VPN_ENABLED
+          value: "false"
+        - name: VPN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: openvpn
+        - name: VPN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: openvpn
+        - name: LAN_NETWORK
+          value: 192.168.0.0/24
+        - name: CREATE_TUN_DEVICE
+          value: "false"
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        image: gjeanmart/jackettvpn:arm-latest
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /api/v2.0/indexers/rarbg/results/torznab/
+            port: 9117
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 2
+        name: jackett
+        ports:
+        - containerPort: 9117
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /config
+          name: media-ssd
+          subPath: configs/jackett
+        - mountPath: /downloads
+          name: media-ssd
+          subPath: downloads/jackett
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: media-ssd
+        persistentVolumeClaim:
+          claimName: media-ssd
+      - hostPath:
+          path: /dev/net/tun
+          type: ""
+        name: dev-tun
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2020-05-22T00:33:56Z"
+    lastUpdateTime: "2020-05-22T00:33:56Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2020-03-31T21:25:30Z"
+    lastUpdateTime: "2020-05-22T01:16:07Z"
+    message: ReplicaSet "jackett-75fcf5874d" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 7
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
