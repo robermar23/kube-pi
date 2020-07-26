@@ -36,6 +36,8 @@ sudo mv flash /usr/local/bin/flash
 - step 4: run the flash script:
 ```bash
 flash -u static.yml https://github.com/hypriot/image-builder-rpi/releases/download/v1.12.0/hypriotos-rpi-v1.12.0.img.zip
+flash -u static.yml https://github.com/hypriot/image-builder-rpi/releases/download/v1.12.3/hypriotos-rpi-v1.12.3.img.zip
+flash -u static.yml https://github.com/lucashalbert/image-builder-rpi64/releases/download/20200225/hypriotos-rpi64-dirty.zip
 ```
 - step 5: rinse and repeat for each Pi you want in your cluster.  Make sure to update the hostname and static ip address in phase3-image/static-yml
 
@@ -499,3 +501,22 @@ od -An -t x1 -j 4 -N 1 file
 
 plex media server log location
 /mnt/ssd/media/Library/Application Support/Plex Media Server/Logs
+
+```bash
+livenessProbe:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - curl "http://localhost:8989/sonarr/api/health?ApiKey=$(sed -ne '/ApiKey/{s/.*<ApiKey>\(.*\)<\/ApiKey>.*/\1/p;q;}' </config/config.xml)"
+  initialDelaySeconds: 30
+  periodSeconds: 10
+readinessProbe:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - curl "http://localhost:8989/sonarr/api/system/status?ApiKey=$(sed -ne '/ApiKey/{s/.*<ApiKey>\(.*\)<\/ApiKey>.*/\1/p;q;}' </config/config.xml)"
+  initialDelaySeconds: 30
+  periodSeconds: 10
+```
