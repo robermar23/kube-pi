@@ -498,6 +498,11 @@ find arch: 01 for 32bit, 02 for 64bit:
 ```
 od -An -t x1 -j 4 -N 1 file
 ```
+ssh into running conatiner:
+```
+kubectl exec --stdin --tty -n media sonarr-745fcdcfbd-rjhtl -- /bin/bash
+kubectl exec --stdin --tty -n media transmission-transmission-openvpn-56676b4d77-5lkt9 -- /bin/bash
+```
 
 plex media server log location
 /mnt/ssd/media/Library/Application Support/Plex Media Server/Logs

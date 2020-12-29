@@ -79,7 +79,10 @@ helm install transmission bananaspliff/transmission-openvpn \
     --values phase12-pihole/plex/media-transmission-openvpn-values.yml \
     --namespace media
 
-
+helm upgrade transmission ~/Documents/projects/geek-charts/transmission-openvpn \
+    --values phase12-pihole/plex/media-transmission-openvpn-values.yml \
+    --namespace media
+  
 ```
 
 ### Jacket
@@ -99,6 +102,10 @@ mkdir -p /mnt/sdd/media/configs/jackett/jackett/
 install jackett chart
 ```
 helm install jackett bananaspliff/jackett \
+    --values phase12-pihole/plex/media-jackett-values.yml \
+    --namespace media
+
+helm upgrade jackett bananaspliff/jackett \
     --values phase12-pihole/plex/media-jackett-values.yml \
     --namespace media
 ```
@@ -152,6 +159,11 @@ install my sonarr chart
 helm install sonarr ../geek-charts/sonarr/ \
   --values phase12-pihole/plex/media-sonarr-values.yml \
   --namespace media
+
+helm upgrade sonarr ../geek-charts/sonarr/ \
+  --values phase12-pihole/plex/media-sonarr-values.yml \
+  --namespace media
+
 ```
 
 ### Radarr
@@ -198,7 +210,11 @@ helm upgrade radarr bananaspliff/radarr \
 
 install my radarr chart
 ```
-helm install radarr ../geek-charts/radarr/ \
+helm install radarr ~/Documents/projects/geek-charts/radarr/ \
+  --values phase12-pihole/plex/media-radarr-values.yml \
+  --namespace media
+
+helm upgrade radarr ~/Documents/projects/geek-charts/radarr/ \
   --values phase12-pihole/plex/media-radarr-values.yml \
   --namespace media
 ```

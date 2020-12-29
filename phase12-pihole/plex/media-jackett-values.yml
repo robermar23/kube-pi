@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: "gjeanmart/jackettvpn" # Special image to use Jackett over a VPN
   tag: "arm-latest"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 env:
   - name: VPN_ENABLED

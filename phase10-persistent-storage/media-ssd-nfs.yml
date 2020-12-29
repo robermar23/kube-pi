@@ -1,72 +1,82 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  namespace: "media"
   name: "media-ssd-downloads"
+  labels:
+    type: "local"
 spec:
   storageClassName: "manual"
+  capacity:
+    storage: "650Gi"
   accessModes:
     - ReadWriteMany
-  resources:
-    requests:
-      storage: "650Gi"
+  hostPath:
+    path: "/mnt/downloads"
 
 ---
 
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  namespace: "media"
   name: "media-ssd-transmission"
+  labels:
+    type: "local"
 spec:
   storageClassName: "manual"
+  capacity:
+    storage: "190Gi"
   accessModes:
     - ReadWriteMany
-  resources:
-    requests:
-      storage: "190Gi"
+  hostPath:
+    path: "/mnt/transmission"
 
 ---
 
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  namespace: "media"
   name: "media-ssd-sonarr"
+  labels:
+    type: "local"
 spec:
   storageClassName: "manual"
+  capacity:
+    storage: "11Gi"
   accessModes:
     - ReadWriteMany
-  resources:
-    requests:
-      storage: "11Gi"
+  hostPath:
+    path: "/mnt/sonarr"
 
 ---
 
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  namespace: "media"
   name: "media-ssd-radarr"
+  labels:
+    type: "local"
 spec:
   storageClassName: "manual"
+  capacity:
+    storage: "10Gi"
   accessModes:
     - ReadWriteMany
-  resources:
-    requests:
-      storage: "10Gi"
+  hostPath:
+    path: "/mnt/radarr"
 
 ---
 
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  namespace: "media"
   name: "media-ssd-lidarr"
+  labels:
+    type: "local"
 spec:
   storageClassName: "manual"
+  capacity:
+    storage: "10Gi"
   accessModes:
     - ReadWriteMany
-  resources:
-    requests:
-      storage: "10Gi"
+  hostPath:
+    path: "/mnt/lidarr"

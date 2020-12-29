@@ -40,7 +40,7 @@ spec:
         backend:
           serviceName: "lidarr"
           servicePort: 80
-      - path: "/"
-        backend:
-          serviceName: "plex-kube-plex"
-          servicePort: 32400
+      # - path: "/"
+      #   backend:
+      #     serviceName: "plex-kube-plex"
+      #     servicePort: 32400

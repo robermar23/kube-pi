@@ -3,33 +3,38 @@ replicaCount: 1
 image:
   repository: "robermar2/radarr"
   tag: "armv7" # ARM image
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 env:
   - name: PUID
     value: "1000"
   - name: PGID
     value: "1000"
+  - name: TZ
+    value: 
 
 service:
   type: ClusterIP
   port: 80
 
 volumes:
-  - name: "media-ssd"
+  - name: "media-ssd-downloads"
     persistentVolumeClaim:
-      claimName:  "media-ssd" # PersistentVolumeClaim created earlier
-  - name: "media-ssd-plex-data"
+      claimName:  "media-ssd-downloads" # PersistentVolumeClaim created earlier
+  - name: "media-ssd-radarr"
     persistentVolumeClaim:
-      claimName:  "media-ssd-plex-data" # PersistentVolumeClaim created earlier
+      claimName:  "media-ssd-radarr" # PersistentVolumeClaim created earlier
 
 volumeMounts:
-  - name: "media-ssd"
+  - name: "media-ssd-radarr"
     mountPath: "/config"
-    subPath: "configs/radarr" # Path /mnt/ssd/media/configs/radarr where radarr writes the configuration
-  - name: "media-ssd"
+    #subPath: "configs/radarr" # Path /mnt/ssd/media/configs/radarr where radarr writes the configuration
+  - name: "media-ssd-downloads"
     mountPath: "/downloads/transmission"
-    subPath: "downloads/transmission" # Path /mnt/ssd/media/downloads/transmission where radarr picks up downloaded movies
-  - name: media-ssd-plex-data
-    mountPath: "/data/movies"
+    #subPath: "downloads/transmission" # Path /mnt/ssd/media/downloads/transmission where radarr picks up downloaded movies
+  #- name: media-ssd-plex-data
+    #mountPath: "/data/movies"
     #subPath: "movies" # Path /mnt/ssd/media/library/movies where radarr moves and renames the movies
+
+nodeSelector:
+  kubernetes.io/hostname: k8s-node-08

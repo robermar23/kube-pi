@@ -2,31 +2,40 @@ replicaCount: 1
 
 image:
   repository: robermar2/sonarr
-  tag: armv7 # ARM image
-  pullPolicy: Always
+  tag: armv7-latest # ARM image
+  pullPolicy: IfNotPresent
 
 env:
   - name: PUID
     value: "1000"
   - name: PGID
     value: "1000"
+  - name: TZ
+    value: "America/New_York"
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   port: 80
 
 volumes:
+  - name: media-ssd-downloads
+    persistentVolumeClaim:
+      claimName: "media-ssd-downloads" # PersistentVolumeClaim created earlier
+  - name: media-ssd-sonarr
+    persistentVolumeClaim:
+      claimName: "media-ssd-sonarr" # PersistentVolumeClaim created earlier
   - name: media-ssd
     persistentVolumeClaim:
       claimName: "media-ssd" # PersistentVolumeClaim created earlier
 
 volumeMounts:
-  - name: media-ssd
+  - name: media-ssd-sonarr
     mountPath: "/config"
-    subPath: "configs/sonarr" # Path /mnt/ssd/media/configs/sonarr where sonarr writes the configuration
-  - name: media-ssd
+  - name: media-ssd-downloads
     mountPath: "/downloads/transmission"
-    subPath: "downloads/transmission" # Path /mnt/ssd/media/downloads/transmission where sonarr picks up downloaded episodes
-  - name: media-ssd
+  - name: media-ssd-sonarr
     mountPath: "/tv"
-    subPath: "library/tv" # Path /mnt/ssd/media/library/tv where sonarr moves and renames the episodes
+    subPath: "tv" # Path /mnt/ssd/media/library/tv where sonarr moves and renames the episodes
+
+nodeSelector:
+  kubernetes.io/hostname: k8s-node-06

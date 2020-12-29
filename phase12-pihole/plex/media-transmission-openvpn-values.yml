@@ -2,8 +2,9 @@ replicaCount: 1
 
 image:
   repository: "haugene/transmission-openvpn"
-  tag: "latest-armhf" # Suffixed by -armhf to pull the ARM image
-  pullPolicy: "Always"
+  tag: "2.10-armhf" # Suffixed by -armhf to pull the ARM image
+  #tag: "latest-armhf" # Suffixed by -armhf to pull the ARM image
+  pullPolicy: "IfNotPresent"
 
 env:
   - name: OPENVPN_PROVIDER
@@ -29,7 +30,7 @@ env:
   # - name: NORDVPN_CATEGORY
   #   value: "P2P" # VPN Type
   - name: LOCAL_NETWORK
-    value: "192.168.0.0/24"
+    value: "192.168.0.0/24,10.36.0.0/24,10.42.0.0/24,10.40.0.0/24"
   - name: TRANSMISSION_PEER_PORT
     value: "47444"
   - name: TRANSMISSION_DOWNLOAD_DIR
@@ -38,30 +39,44 @@ env:
     value: "1000"
   - name: PGID
     value: "1000"
+  - name: "WEBPROXY_ENABLED"
+    value: "false"
+  - name: "CREATE_TUN_DEVICE"
+    value: "false"
+  # - name: "TRANSMISSION_WEB_UI"
+  #   value: "combustion"
 
 service:
   type: ClusterIP
   port: 80
 
 volumes:
-  - name: "media-ssd"
+  - name: "media-ssd-downloads"
     persistentVolumeClaim:
-      claimName: "media-ssd" # PersistentVolumeClaim created earlier
+      claimName: "media-ssd-downloads" # PersistentVolumeClaim created earlier
+  - name: "media-ssd-transmission"
+    persistentVolumeClaim:
+      claimName: "media-ssd-transmission" # PersistentVolumeClaim created earlier
   - name: "dev-tun" # Needed for VPN
     hostPath:
       path: "/dev/net/tun"
+  - name: localtime
+    hostPath:
+      path: /etc/localtime
+      type: ""
 
 volumeMounts:
-  - name: "media-ssd"
+  - name: "media-ssd-transmission"
     mountPath: "/data"
-    subPath: "configs/transmission-data" # Path /mnt/ssd/media/configs/transmission-data where transmission writes the configuration
-  - name: "media-ssd"
+    #subPath: "/" # Path /mnt/ssd/transmission where transmission writes the configuration
+  - name: "media-ssd-downloads"
     mountPath: "/downloads/transmission"
-    subPath: "downloads/transmission" # Path /mnt/ssd/media/downloads/transmission where transmission downloads Torrents
+    #subPath: "/" # Path /mnt/ssd/downloads where transmission downloads Torrents
   - name: "dev-tun"
     mountPath: "/dev/net/tun" # Needed for VPN
 
 securityContext:
+  allowPrivilegeEscalation: true
   privileged: true
   capabilities: # Needed for VPN
     add:
@@ -71,3 +86,6 @@ podSecurityContext:
   sysctls:
   - name: net.ipv6.conf.all.disable_ipv6
     value: "0"
+
+nodeSelector:
+  kubernetes.io/hostname: k8s-node-07
