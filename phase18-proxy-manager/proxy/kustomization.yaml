@@ -1,0 +1,6 @@
+resources:
+  - secret.yaml
+  - config-map.yaml
+  - pvc.yaml
+  - deployment.yaml
+namespace: default

@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: robermar2/sonarr
-  tag: armv7-latest # ARM image
+  tag: armv7-04282021 # ARM image
   pullPolicy: IfNotPresent
 
 env:
@@ -14,7 +14,7 @@ env:
     value: "America/New_York"
 
 service:
-  type: LoadBalancer
+  type: ClusterIP
   port: 80
 
 volumes:
@@ -24,9 +24,9 @@ volumes:
   - name: media-ssd-sonarr
     persistentVolumeClaim:
       claimName: "media-ssd-sonarr" # PersistentVolumeClaim created earlier
-  - name: media-ssd
-    persistentVolumeClaim:
-      claimName: "media-ssd" # PersistentVolumeClaim created earlier
+  # - name: media-ssd
+  #   persistentVolumeClaim:
+  #     claimName: "media-ssd" # PersistentVolumeClaim created earlier
 
 volumeMounts:
   - name: media-ssd-sonarr
@@ -38,4 +38,10 @@ volumeMounts:
     subPath: "tv" # Path /mnt/ssd/media/library/tv where sonarr moves and renames the episodes
 
 nodeSelector:
-  kubernetes.io/hostname: k8s-node-06
+  kubernetes.io/hostname: k8s-node-10
+
+securityContext:
+  capabilities: # Needed for VPN
+    add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH

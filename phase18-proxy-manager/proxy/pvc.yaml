@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-proxy-manager-data
+spec:
+  storageClassName: "" # Empty string must be explicitly set otherwise default StorageClass will be set
+  volumeName: media-ssd-nginxproxymanager
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: "5Gi"

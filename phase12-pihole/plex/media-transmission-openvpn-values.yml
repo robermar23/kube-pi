@@ -82,10 +82,10 @@ securityContext:
     add:
       - NET_ADMIN
 
-podSecurityContext:
-  sysctls:
-  - name: net.ipv6.conf.all.disable_ipv6
-    value: "0"
+# podSecurityContext:
+#   sysctls:
+#   - name: net.ipv6.conf.all.disable_ipv6
+#     value: "0"
 
 nodeSelector:
-  kubernetes.io/hostname: k8s-node-07
+  kubernetes.io/hostname: k8s-node-09

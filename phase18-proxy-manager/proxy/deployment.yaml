@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-proxy-manager
+spec:
+  selector:
+    matchLabels:
+      app: nginx-proxy-manager
+  template:
+    metadata:
+      labels:
+        app: nginx-proxy-manager
+    spec:
+      volumes:
+        - name: nginx-proxy-manager-data
+          persistentVolumeClaim:
+            claimName: nginx-proxy-manager-data
+      containers:
+      - name: nginx-proxy-manager
+        image: 'jc21/nginx-proxy-manager:latest'
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+        - containerPort: 81
+        - containerPort: 443
+        env:
+          - name: DB_MYSQL_HOST
+            valueFrom:
+              configMapRef:
+                key: db_mysql_host
+                name: nginx-proxy-manager
+          - name: DB_MYSQL_PORT
+            valueFrom:
+              configMapRef:
+                key: db_mysql_port
+                name: nginx-proxy-manager
+          - name: DB_MYSQL_NAME
+            valueFrom:
+              configMapRef:
+                key: db_mysql_name
+                name: nginx-proxy-manager
+          - name: DB_MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                key: db_mysql_user
+                name: nginx-proxy-manager
+          - name: DB_MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: db_mysql_password
+                name: nginx-proxy-manager
+        volumeMounts:
+          - name: nginx-proxy-manager-data
+            mountPath: /data
+            subPath: /data
+          - name: nginx-proxy-manager-data
+            mountPath: /etc/letsencrypt
+            subPath: /letsencrypt
+  

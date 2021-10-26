@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: "gjeanmart/jackettvpn" # Special image to use Jackett over a VPN
-  tag: "arm-latest"
+  tag: "latest-armhf"
   pullPolicy: Always
 
 env:
@@ -34,7 +34,7 @@ service:
 volumes:
   - name: "media-ssd"
     persistentVolumeClaim:
-      claimName: "media-ssd" # PersistentVolumeClaim created earlier
+      claimName: "media-ssd-jackett" # PersistentVolumeClaim created earlier
   - name: "dev-tun"  # Needed for VPN
     hostPath:
       path: "/dev/net/tun"

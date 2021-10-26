@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   namespace: "default"
-  name: "media-ingress"
+  name: "media.k8shome.net"
   annotations:
     #nginx.ingress.kubernetes.io/ssl-redirect: "false"
     kubernetes.io/ingress.class: "nginx"
@@ -51,29 +51,3 @@ spec:
             name: "jackett"
             port:
               number: 80
-      # - path: "/radarr"
-      #   pathType: Prefix
-      #   backend:
-      #     serviceName: "radarr"
-      #     servicePort: 80
-      # - path: "/ngax"
-      #   pathType: Prefix
-      #   backend:
-      #     serviceName: "duplicati"
-      #     servicePort: 80
-      # - path: "/organizr"
-      #   backend:
-      #     serviceName: "organizr"
-      #     servicePort: 80
-      # - path: "/ombi"
-      #   backend:
-      #     serviceName: "ombi"
-      #     servicePort: 80
-      # - path: "/lidarr"
-      #   backend:
-      #     serviceName: "lidarr"
-      #     servicePort: 80
-      # - path: "/"
-      #   backend:
-      #     serviceName: "plex-kube-plex"
-      #     servicePort: 32400

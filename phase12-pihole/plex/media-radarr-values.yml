@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: "robermar2/radarr"
-  tag: "armv7" # ARM image
+  tag: "armv7-04282021" # ARM image
   pullPolicy: IfNotPresent
 
 env:
@@ -37,4 +37,10 @@ volumeMounts:
     #subPath: "movies" # Path /mnt/ssd/media/library/movies where radarr moves and renames the movies
 
 nodeSelector:
-  kubernetes.io/hostname: k8s-node-08
+  kubernetes.io/hostname: k8s-node-11
+
+securityContext:
+  capabilities: # Needed for VPN
+    add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
