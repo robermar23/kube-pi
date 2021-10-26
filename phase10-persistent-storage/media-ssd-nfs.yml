@@ -80,3 +80,54 @@ spec:
     - ReadWriteMany
   hostPath:
     path: "/mnt/lidarr"
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "media-ssd-jackett"
+  labels:
+    type: "local"
+spec:
+  storageClassName: "manual"
+  capacity:
+    storage: "5Gi"
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/jackett"
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "media-ssd-mariadb"
+  labels:
+    type: "local"
+spec:
+  storageClassName: "manual"
+  capacity:
+    storage: "5Gi"
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/mariadb"
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "media-ssd-nginxproxymanager"
+  labels:
+    type: "local"
+spec:
+  storageClassName: "manual"
+  capacity:
+    storage: "5Gi"
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/nginxproxymanager"
