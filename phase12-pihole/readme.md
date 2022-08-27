@@ -152,6 +152,9 @@ install sonarr chart
 helm install sonarr bananaspliff/sonarr \
     --values phase12-pihole/plex/media-sonarr-values.yml \
     --namespace media
+
+helm upgrade sonarr bananaspliff/sonarr \
+    --values phase12-pihole/plex/media-sonarr-values.yml
 ```
 
 install my sonarr chart
@@ -206,6 +209,9 @@ upgrade radarr chart
 helm upgrade radarr bananaspliff/radarr \
     --values phase12-pihole/plex/media-radarr-values.yml \
     --namespace media
+
+helm upgrade radarr ../geek-charts/radarr/ \
+  --values phase12-pihole/plex/media-radarr-values.yml 
 ```
 
 install my radarr chart
